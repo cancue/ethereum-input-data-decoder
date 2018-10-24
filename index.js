@@ -43,11 +43,14 @@ class InputDataDecoder {
         data = `0x${data}`
       }
 
-      const inputs = ethers.Interface.decodeParams(types, data)
+      const values = ethers.Interface.decodeParams(types, data)
+      const inputs = obj.inputs.map((el, index) => {
+        el.value = values[index]
+        return el
+      })
 
       return {
         name,
-        types,
         inputs
       }
     }
@@ -82,17 +85,20 @@ class InputDataDecoder {
           inputsBuf = Buffer.concat([new Buffer(12), inputsBuf.slice(12,32), inputsBuf.slice(32)])
         }
 
-        const inputs = ethabi.rawDecode(types, inputsBuf)
+        const values = ethabi.rawDecode(types, inputsBuf)
+        const inputs = obj.inputs.map((el, index) => {
+          el.value = values[index]
+          return el
+        })
 
         return {
           name,
-          types,
           inputs
         }
       }
 
       return acc
-    }, {name: null, types: [], inputs: []})
+    }, {name: null, inputs: []})
 
     if (!result.name) {
       try {
